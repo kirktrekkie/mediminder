@@ -1,0 +1,15 @@
+{
+  "date": "700101",
+  "morning": {
+    "given": false,
+    "time": "None"
+  },
+  "day": {
+    "given": false,
+    "time": "None"
+  },
+  "night": {
+    "given": false,
+    "time": "None"
+  }
+}
