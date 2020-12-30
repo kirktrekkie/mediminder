@@ -2,6 +2,7 @@ import os
 from flask import Flask, redirect, request, render_template, url_for
 from json import load, dump
 from datetime import date, datetime, time
+from sense_hat_control import MySense
 
 app = Flask(__name__)
 
@@ -30,8 +31,12 @@ def main_route():
     morning = medicine_status["morning"]
     day = medicine_status["day"]
     night = medicine_status["night"]
+    my_sense = MySense()
+    sense = {'temperature': my_sense.get_temp(),
+             'humidity': my_sense.get_humid(),
+             'pressure': my_sense.get_press()}
 
-    return render_template("index.html", morning=morning, day=day, night=night)
+    return render_template("index.html", morning=morning, day=day, night=night, sense=sense)
 
 
 def check_color(medicine_status):
