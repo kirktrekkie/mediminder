@@ -76,8 +76,11 @@ def read_medicine_status(file):
 
 def write_medicine_status(medicine_status):
     print("medicine_status {}".format(medicine_status))
-    with open(MEDICINE_STATUS_FILE, "w") as ms_json:
-        dump(medicine_status, ms_json)
+    if medicine_status:
+        with open(MEDICINE_STATUS_FILE, "w") as ms_json:
+            dump(medicine_status, ms_json)
+    else:
+        print("medicine_status not defined: {}".format(medicine_status))
 
 
 if __name__ == '__main__':
