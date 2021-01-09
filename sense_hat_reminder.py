@@ -1,6 +1,6 @@
 import os
 from json import load
-from webapp import check_color, give_medicine, write_medicine_status
+from webapp import check_color, give_medicine, write_medicine_status, update_day, read_medicine_status
 from datetime import datetime, timedelta
 from time import  sleep
 from sense_hat_control import MySense
@@ -29,6 +29,7 @@ def loop(time_limits):
         # Check every other minute
         if current_time.minute % 2 == 0:
             if not is_checked:
+                print("Current time: {}".format(current_time))
                 is_checked = True
                 with open(MEDICINE_STATUS_FILE) as ms_json:
                     medicine_status = load(ms_json)
@@ -46,7 +47,10 @@ def loop(time_limits):
                         # Check if red led should be lit
                         if alert_time_object < current_time: # < end_time_object:
                             print('Show message for {}'.format(key))
-                            sense.print_message('{} medicine not given!')
+                            sense.red_blink()
+                            sense.print_message('Give {} medicine!'.format(key))
+                            sense.red_blink()
+                            is_checked = False
                         else:
                             print('No message needed, time not in range')
         else:
@@ -55,9 +59,38 @@ def loop(time_limits):
         # Check button pressed
         events = sense.get_events()
         for event in events:
+            update_given()
             print("The joystick was {} {}".format(event.action, event.direction))
+            sense.green_blink()
+
+        # Check movement
+        if sense.check_movement():
+            update_given()
+            print("Movement detected")
+            sense.green_blink()
+
+        # Check new day
+        if today != datetime.today().day:
+            update_day()
+            today = datetime.today().day
 
         sleep(1)
+
+
+def update_given():
+    medicine_status = read_medicine_status(MEDICINE_STATUS_FILE)
+    current_hour = datetime.now().hour
+    if current_hour < 12:
+        check_and_give(medicine_status, "morning")
+    elif current_hour < 18:
+        check_and_give(medicine_status, "day")
+    else:
+        check_and_give(medicine_status, "night")
+
+
+def check_and_give(medicine_status, time_of_day):
+    if not medicine_status[time_of_day]['given']:
+        give_medicine(medicine_status, time_of_day)
 
 
 if __name__ == '__main__':

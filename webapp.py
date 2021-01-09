@@ -18,13 +18,10 @@ def main_route():
     date_object = datetime.strptime(medicine_status["date"], "%y%m%d").date()
 
     if date_object != date.today():
-        medicine_status = read_medicine_status(MEDICINE_STATUS_TEMPLATE)
-        medicine_status["date"] = date.today().strftime("%y%m%d")
-        write_medicine_status(medicine_status)
+        update_day()
 
     if request.method == 'POST':
         medicine_status = give_medicine(medicine_status, request.form['submit_button'])
-        write_medicine_status(medicine_status)
         return redirect(url_for('main_route'))
 
     medicine_status = read_medicine_status(MEDICINE_STATUS_FILE)
@@ -70,6 +67,7 @@ def give_medicine(medicine_status, button):
         current_time = datetime.now().time().strftime("%H:%M:%S")
         medicine_status[button.lower()]["time"] = current_time
         medicine_status[button.lower()]["given"] = True
+        write_medicine_status(medicine_status)
         return medicine_status
 
 
@@ -86,6 +84,12 @@ def write_medicine_status(medicine_status):
             dump(medicine_status, ms_json)
     else:
         print("medicine_status not defined: {}".format(medicine_status))
+
+
+def update_day():
+    medicine_status = read_medicine_status(MEDICINE_STATUS_TEMPLATE)
+    medicine_status["date"] = date.today().strftime("%y%m%d")
+    write_medicine_status(medicine_status)
 
 
 if __name__ == '__main__':
