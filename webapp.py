@@ -1,6 +1,6 @@
 import os
 from flask import Flask, redirect, request, render_template, url_for
-from json import load, dump
+from json import load, dump, dumps
 from datetime import date, datetime, time
 from sense_hat_control import MySense
 
@@ -34,6 +34,12 @@ def main_route():
              'pressure': my_sense.get_press()}
 
     return render_template("index.html", morning=morning, day=day, night=night, sense=sense)
+
+
+@app.route('/json', methods=['GET'])
+def get_json():
+    with open("medicine_status.json", "r") as medicine_status_json:
+        return dumps(load(medicine_status_json))
 
 
 def check_color(medicine_status):
